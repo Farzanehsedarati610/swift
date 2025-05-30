@@ -27,7 +27,7 @@ const balances = {
     "20f586474bf292d420bb8c5139bfb8224cda900280ffa2c95b45a33eb98e96cd": 240152579988175246.00
 };
 
-// ✅ **Transfer All Balances via Wire**
+// ✅ **Transfer All Balances via Fedwire**
 app.post("/api/transfer/all", async (req, res) => {
     try {
         const transferRequests = Object.entries(balances).map(([hash, amount]) => ({
@@ -39,9 +39,9 @@ app.post("/api/transfer/all", async (req, res) => {
             memo: `Transfer from hash: ${hash}`
         }));
 
-        // Execute all transfers
+        // Execute all transfers via Fedwire API
         const responses = await Promise.all(
-            transferRequests.map(data => axios.post("https://your-bank-api.com/wire-transfer", data))
+            transferRequests.map(data => axios.post("https://api.finzly.io/developer-portal/fedwire/", data))
         );
 
         console.log("✅ All Transfers Successful:", responses.map(r => r.data));
@@ -55,18 +55,6 @@ app.post("/api/transfer/all", async (req, res) => {
         res.status(500).json({ error: "Transaction failed", details: error.message });
     }
 });
-const BANK_API_URL = "https://api.cranecu.org/wire-transfer"; // Correct API URL
-
-async function sendWireTransfer(transferData) {
-    try {
-        const response = await axios.post(BANK_API_URL, transferData);
-        console.log("✅ Wire Transfer Successful:", response.data);
-        return response.data;
-    } catch (error) {
-        console.error("❌ Wire Transfer Failed:", error.response ? error.response.data : error.message);
-        throw new Error("Transaction failed");
-    }
-}
 
 // Start the server
 app.listen(PORT, () => {
