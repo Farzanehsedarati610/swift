@@ -1,0 +1,12 @@
+services:
+  - name: swift-api
+    type: web
+    env: node
+    plan: standard
+    region: oregon
+    rootDir: /
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+
