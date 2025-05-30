@@ -1,5 +1,6 @@
 const express = require("express");
 const axios = require("axios");
+const response = await axios.post("https://api.finzly.io/developer-portal/fedwire/", transferData, { headers });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
