@@ -56,6 +56,12 @@ app.post("/api/transfer/all", async (req, res) => {
     }
 });
 const response = await axios.post("https://api.finzly.io/developer-portal/fedwire/", transferData);
+const headers = {
+    "Authorization": "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json"
+};
+
+const response = await axios.post("https://api.finzly.io/developer-portal/fedwire/", transferData, { headers });
 
 // Start the server
 app.listen(PORT, () => {
