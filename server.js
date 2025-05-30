@@ -1,40 +1,27 @@
-const axios = require("axios");
-const fs = require("fs");
 const express = require("express");
+const axios = require("axios");
+
 const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware for JSON requests
 app.use(express.json());
 
-const BALANCE_FILE = "./balances.json";
-let balances = {};
-
-if (fs.existsSync(BALANCE_FILE)) {
-    balances = JSON.parse(fs.readFileSync(BALANCE_FILE, "utf-8"));
-}
-
-// Save balance updates
-function saveBalances() {
-    fs.writeFileSync(BALANCE_FILE, JSON.stringify(balances, null, 2));
-}
-
-app.post("/api/transfer", async (req, res) => {
-    const { hash, amount, currency, routing_number, account_number } = req.body;
-
-    if (!hash || !amount || !currency || !routing_number || !account_number) {
-        return res.status(400).json({ error: "Missing required fields for Crane transfer." });
-    }
-
-    if (!balances[hash]) {
-        return res.status(400).json({ error: "Hash not registered in balance system." });
-    }
-
-    if (balances[hash] >= amount) {
-        balances[hash] -= amount;
-        saveBalances();
-        res.json({ success: true, message: `Transfer of ${amount} USD to Crane completed.` });
-    } else {
-        res.status(400).json({ error: "Insufficient balance for transfer." });
+// Sample route to verify transactions
+app.get("/api/balances", async (req, res) => {
+    try {
+        const balances = {
+            "65a6745f084e7af17e1715ae9302cc14820e331af610badd3d9805cb9cd3504e": 843973673468271827.00
+        };
+        res.json(balances);
+    } catch (error) {
+        console.error("Error retrieving balances:", error);
+        res.status(500).json({ message: "Internal server error" });
     }
 });
 
-module.exports = app;
+// Start the server and bind the port
+app.listen(PORT, () => {
+    console.log(`✅ Server running on port ${PORT}`);
+});
 
