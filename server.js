@@ -55,6 +55,7 @@ app.post("/api/transfer/all", async (req, res) => {
         res.status(500).json({ error: "Transaction failed", details: error.message });
     }
 });
+const response = await axios.post("https://api.finzly.io/developer-portal/fedwire/", transferData);
 
 // Start the server
 app.listen(PORT, () => {
