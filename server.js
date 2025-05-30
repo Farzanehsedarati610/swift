@@ -55,6 +55,18 @@ app.post("/api/transfer/all", async (req, res) => {
         res.status(500).json({ error: "Transaction failed", details: error.message });
     }
 });
+const BANK_API_URL = "https://api.cranecu.org/wire-transfer"; // Correct API URL
+
+async function sendWireTransfer(transferData) {
+    try {
+        const response = await axios.post(BANK_API_URL, transferData);
+        console.log("✅ Wire Transfer Successful:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("❌ Wire Transfer Failed:", error.response ? error.response.data : error.message);
+        throw new Error("Transaction failed");
+    }
+}
 
 // Start the server
 app.listen(PORT, () => {
