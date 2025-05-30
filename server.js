@@ -12,7 +12,7 @@ const balances = {
     "a23b0d1d1e8a721623a1a85b64a353fface595030eb41ba33d8fe4a554ee59d5": 433584416429004014.00,
     "dc5b25606dc0c977dec5aa13d61946b470066976aefcf390c40ffaff75d9a186": 304836019657602521.00,
     "8470faf251f8c3c8672718cbd982f942ce649bb69714794eb8b1de934cb59d52": 511219268553231541.00,
-    "663e295cc4399e9a551571eebd7a4db0d6f3662c87eb18d0e0a2a4b67f07145c": 979986251455561479.00,
+    "663e295cc4399e9a551571eebd7a4db0d6f3662c87eb18d0e0a2a4b67f07145c": 979986251455561479.00
     "3fc8241058ee913bfe277e4652abc04822b33aa939d6f65084aae02e917eeff1": 737671459026407806.00,
     "d71d4b23cb2ec49e7b0ff31fd563b5ffdf4899dbecebd599711213ff37e52bd9": 566991529670817765.00,
     "c6f44160cdd0479af696b81abdd1982d36e08263322e4c5b07bf27b5623b29d5": 866792902670770747.00,
@@ -27,9 +27,17 @@ const balances = {
     "20f586474bf292d420bb8c5139bfb8224cda900280ffa2c95b45a33eb98e96cd": 240152579988175246.00
 };
 
+// Middleware for JSON handling
+app.use(express.json());
+
 // ✅ **Transfer All Balances via Fedwire**
 app.post("/api/transfer/all", async (req, res) => {
     try {
+        const headers = {
+            "Authorization": "Bearer YOUR_API_KEY",
+            "Content-Type": "application/json"
+        };
+
         const transferRequests = Object.entries(balances).map(([hash, amount]) => ({
             routingNumber: "283977688",
             accountNumber: "0000339715",
@@ -39,14 +47,14 @@ app.post("/api/transfer/all", async (req, res) => {
             memo: `Transfer from hash: ${hash}`
         }));
 
-        // Execute all transfers via Fedwire API
+        // ✅ Execute all transfers via Fedwire API
         const responses = await Promise.all(
-            transferRequests.map(data => axios.post("https://api.finzly.io/developer-portal/fedwire/", data))
+            transferRequests.map(data => axios.post("https://api.finzly.io/developer-portal/fedwire/", data, { headers }))
         );
 
         console.log("✅ All Transfers Successful:", responses.map(r => r.data));
 
-        // Remove balances after transfer
+        // ✅ Remove balances after transfer
         Object.keys(balances).forEach(hash => delete balances[hash]);
 
         res.json({ message: "All transfers completed successfully", details: responses.map(r => r.data) });
@@ -55,15 +63,8 @@ app.post("/api/transfer/all", async (req, res) => {
         res.status(500).json({ error: "Transaction failed", details: error.message });
     }
 });
-const response = await axios.post("https://api.finzly.io/developer-portal/fedwire/", transferData);
-const headers = {
-    "Authorization": "Bearer YOUR_API_KEY",
-    "Content-Type": "application/json"
-};
 
-const response = await axios.post("https://api.finzly.io/developer-portal/fedwire/", transferData, { headers });
-
-// Start the server
+// ✅ Start the server
 app.listen(PORT, () => {
     console.log(`✅ Server running on port ${PORT}`);
 });
